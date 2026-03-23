@@ -55,4 +55,5 @@ for s in sizes:
     )
 
 
-# teste teste teste
+#explicar como sabemos que o que fizemos esta correto
+#como fizemos benchmarking e explicar os resultados(comparar tamanhos e algoritmos)
