@@ -61,3 +61,6 @@ plt.grid(True, which="both", linestyle='--', alpha=0.6)
 plt.legend()
 plt.savefig("sha256_performance_timeit.png", dpi=300)
 plt.show()
+
+def run_sha():
+    return sizes, sha_mean_list, sha_std_list

@@ -73,7 +73,7 @@ for s in sizes:
         "DEC:", f"{dec_mean:.2f} ± {dec_std:.2f}"
     )
 
-    
+
 
 plt.figure(figsize=(10,6))
 
@@ -99,6 +99,9 @@ plt.grid(True, which="both", linestyle='--', alpha=0.6)
 
 plt.savefig("aes_performance_timeit_refined.png", dpi=300)
 plt.show()
+
+def run_aes():
+    return sizes, aes_enc, aes_encstd, aes_dec, aes_decstd
 
 # Observações para relatório:
 # - O tempo de encriptação e decriptação aumenta aproximadamente linearmente com o tamanho do ficheiro.
