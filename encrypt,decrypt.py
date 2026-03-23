@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 sizes = [8,64,512,4096,32768,262144,2097152]
 
 key = os.urandom(32)
+#escrever no relatório que decidimos criar um nonce fixo por não estarmos preocupadas com segurança mas sim com o tempo de execução do AES
 nonce = os.urandom(16)
 
 def aes_encrypt(data):
