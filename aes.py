@@ -29,6 +29,10 @@ aes_dec = []
 aes_encstd = []
 aes_decstd = []
 
+# listas para guardar os tempos de encriptação e decriptação do ficheiro maior
+enc_2097152_runs = []
+dec_2097152_runs = []
+
 # número de repetições
 repeats = 30
 
@@ -47,6 +51,11 @@ for s in sizes:
     # converter para microsegundos
     enc_times_us = [t * 1e6 for t in enc_times]
     dec_times_us = [t * 1e6 for t in dec_times]
+
+    # parte para guardar os tempos de execução
+    if s == 2097152:
+        enc_2097152_runs = enc_times_us[:15]
+        dec_2097152_runs = dec_times_us[:15]
 
     # calcular média e desvio padrão
     enc_mean = statistics.mean(enc_times_us)
@@ -70,8 +79,8 @@ def plot_aes():
     plt.figure(figsize=(10,6))
 
     # plot com barras de erro
-    plt.errorbar(sizes, aes_enc, yerr=enc_std, marker='o', linestyle='-', label="Encryption")
-    plt.errorbar(sizes, aes_dec, yerr=dec_std, marker='o', linestyle='-', label="Decryption")
+    plt.errorbar(sizes, aes_enc, yerr=aes_encstd, marker='o', linestyle='-', label="Encryption")
+    plt.errorbar(sizes, aes_dec, yerr=aes_decstd, marker='o', linestyle='-', label="Decryption")
 
     # escala log no eixo X
     plt.xscale("log")
@@ -90,4 +99,22 @@ def plot_aes():
     plt.grid(True, which="both", linestyle='--', alpha=0.6)
 
     plt.savefig("plots/aes_performance.png", dpi=300)
+    plt.show()
+
+# função que desenha o gráfico dos diferentes tempo de encriptação e decriptação 
+def plot_first_15_runs():
+    runs = list(range(1, 16))
+
+    plt.figure(figsize=(10,6))
+
+    plt.plot(runs, enc_2097152_runs, marker='o', linestyle='-', label="Encryption")
+    plt.plot(runs, dec_2097152_runs, marker='o', linestyle='-', label="Decryption")
+
+    plt.xlabel("Run number")
+    plt.ylabel("Time (microseconds)")
+    plt.title("AES Execution Time (First 15 Runs, File Size = 2097152 bytes)")
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.6)
+
+    plt.savefig("plots/aes_2097152_first15.png", dpi=300)
     plt.show()
