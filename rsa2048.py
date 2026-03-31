@@ -9,12 +9,28 @@ import matplotlib.pyplot as plt
 def bytes_to_int(b):
     return int.from_bytes(b, byteorder='big')
 
+def int_to_bytes(n, length):
+    return n.to_bytes(length, byteorder='big')
+
 # chaves RSA
 private_key = rsa.generate_private_key(
     public_exponent=65537,
     key_size=2048
 )
 public_key = private_key.public_key()
+
+MOD_BYTES = (public_key.public_numbers().n.bit_length() + 7) // 8
+
+# funções RSA
+def rsa_encrypt(r):
+    r_int = bytes_to_int(r)
+    c_int = pow(r_int, public_key.public_numbers().e, public_key.public_numbers().n)
+    return int_to_bytes(c_int, MOD_BYTES)
+
+def rsa_decrypt(c):
+    c_int = bytes_to_int(c)
+    r_int = pow(c_int, private_key.private_numbers().d, private_key.private_numbers().public_numbers.n)
+    return int_to_bytes(r_int, 32)
 
 # encriptação e decriptação
 def encrypt_file(filename, r):
@@ -23,6 +39,9 @@ def encrypt_file(filename, r):
 
     block_size = 32
     encrypted_blocks = []
+
+    # RSA(r)
+    rsa_r = rsa_encrypt(r)
 
     for i in range((len(m) + block_size - 1) // block_size):
         block = m[i*block_size:(i+1)*block_size]
@@ -34,9 +53,12 @@ def encrypt_file(filename, r):
         cipher_block = bytes(a ^ b for a, b in zip(block, hash_block[:len(block)]))
         encrypted_blocks.append(cipher_block)
 
-    return encrypted_blocks
+    return rsa_r, encrypted_blocks
 
-def decrypt_file(encrypted_blocks, r):
+def decrypt_file(rsa_r, encrypted_blocks):
+    # recuperar r com a chave privada
+    r = rsa_decrypt(rsa_r)
+
     decrypted = bytearray()
 
     for i, cipher_block in enumerate(encrypted_blocks):
@@ -63,25 +85,21 @@ for size in sizes:
 
     # gerar novo r para cada ficheiro
     r = os.urandom(32)
-    r_int = bytes_to_int(r)
-    rsa_r = pow(r_int,
-                public_key.public_numbers().e,
-                public_key.public_numbers().n)
-    
+
     # encriptar uma vez para obter blocos
-    enc_blocks = encrypt_file(filename, r)
+    rsa_r, enc_blocks = encrypt_file(filename, r)
 
     #medir encriptação
     encrypt_times = timeit.repeat(lambda: encrypt_file(filename, r), repeat=repeats, number=1)
     encrypt_times_us = [t*1e6 for t in encrypt_times]
 
-    decrypt_times = timeit.repeat(lambda: decrypt_file(enc_blocks, r), repeat=repeats, number=1)
+    decrypt_times = timeit.repeat(lambda: decrypt_file(rsa_r, enc_blocks), repeat=repeats, number=1)
     decrypt_times_us = [t*1e6 for t in decrypt_times]
 
     #verificação
     with open(filename, "rb") as f:
         original = f.read()
-    decrypted = decrypt_file(enc_blocks, r)
+    decrypted = decrypt_file(rsa_r, enc_blocks)
     assert decrypted == original, "Erro!"
 
     encrypt_mean_list.append(statistics.mean(encrypt_times_us))
@@ -122,3 +140,6 @@ def plot_rsa():
 
     plt.savefig("plots/rsa_performance.png", dpi=300)
     plt.show()
+
+run_rsa()
+plot_rsa()
