@@ -140,6 +140,3 @@ def plot_rsa():
 
     plt.savefig("plots/rsa_performance.png", dpi=300)
     plt.show()
-
-run_rsa()
-plot_rsa()
