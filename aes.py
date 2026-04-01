@@ -60,9 +60,9 @@ for s in sizes:
 
     # guarda nas listas para o gráfico a média e o desvio padrão
     aes_enc.append(statistics.mean(enc_times_us))
-    aes_dec.append(statistics.stdev(enc_times_us))
+    aes_encstd.append(statistics.stdev(enc_times_us))
 
-    aes_encstd.append(statistics.mean(dec_times_us))
+    aes_dec.append(statistics.mean(dec_times_us))
     aes_decstd.append(statistics.stdev(dec_times_us))
 
 for i in range(1, 11):
@@ -134,3 +134,6 @@ def plot_same_vs_diff_files():
     plt.savefig("plots/aes_same_vs_diff_files.png", dpi=300)
     plt.show()
 
+run_aes()
+plot_aes()
+plot_same_vs_diff_files()
